@@ -712,8 +712,7 @@ public class ModelServiceImpl implements EModelService {
 		// element has to be returned. Additionally the index (0) could become a
 		// constant with a meaningful name.
 		//
-		// Return the first placeholder that is to be rendered
-		// or just the first one
+		// Return a placeholder that is to be rendered or just the first one
 		return elementRefs.stream() //
 				.filter(MPlaceholder::isToBeRendered) //
 				.findAny() //
