@@ -691,8 +691,33 @@ public class ModelServiceImpl implements EModelService {
 			}
 		}
 
-		// Just return the first one
-		return elementRefs.get(0);
+		// An easy to reproduce bug (2 views of same type, eg. JUnit, Outline, etc
+		// appear in the same perspective at the same time) resulting in strange
+		// behavior and one of them being unusable.
+		//
+		// For this bug to occur this method is called when a dropped view part is
+		// (re-)activated via {@code
+		// org.eclipse.e4.ui.workbench.addons.dndaddon.DropAgent}.
+		//
+		// The reason for the bug is or seems to be the returned placeholder. Previously
+		// the first placeholder in the elementRefs' list is returned unconditionally.
+		//
+		// IF (and only if) the elements in the elementRefs' list have no predefined
+		// order (!) any placeholder could be returned. In this case the preferred
+		// placeholder to return could be one that is to be rendered - if any. If there
+		// is none that is to be rendered "just return the first one".
+		//
+		// ELSE (the elements in the list do have an predefined order) I'd consider the
+		// comment as a bug and instead write a comment that explains why the first
+		// element has to be returned. Additionally the index (0) could become a
+		// constant with a meaningful name.
+		//
+		// Return the first placeholder that is to be rendered
+		// or just the first one
+		return elementRefs.stream() //
+				.filter(MPlaceholder::isToBeRendered) //
+				.findAny() //
+				.orElse(elementRefs.get(0));
 	}
 
 	@Override
